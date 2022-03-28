@@ -10,8 +10,8 @@ afterAll(() => {
   if (db.end) db.end();
 });
 
-describe('GET/api/topics', () => {
-    test('', () => {
+describe.skip('GET/api/topics', () => {
+    test('should return an object', () => {
         
     })
 })
