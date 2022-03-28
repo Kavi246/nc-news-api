@@ -16,4 +16,6 @@ These two files should be created in the root of this project folder.
 
     PGDATABASE=nc_news
 
+(Both with no semi-colon)
+
 Where our connections to the databases are made in 'db/connection.js', the suitable database will be chosen. If running tests using jest nc_news_test will be chosen, else nc_news will be chosen.
