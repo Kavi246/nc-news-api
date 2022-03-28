@@ -10,6 +10,18 @@ afterAll(() => {
   if (db.end) db.end();
 });
 
+describe.only('general errors when requesting', () => {
+    test('correct 404 response when a path is not found', () => {
+        const invalidPath = "/app/tropics"
+        return request(app)
+        .get(invalidPath)
+        .expect(404)
+        .then((response) => {
+            expect(response.body.message).toBe('path not found')
+        })
+    })
+})
+
 describe('GET/api/topics', () => {
     test('should respond with an array of objects when the request is succesful', () => {
         return request(app)
