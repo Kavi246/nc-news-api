@@ -20,9 +20,15 @@ exports.patchArticleById = (req, res, next) => {
         return next({status: 400, msg: 'value for the vote increment must be a number!'})
     }
     const { inc_votes } = req.body;
-    
-    updateArticleById(article_id, inc_votes).then((updatedArticle) => {
-        console.log(updatedArticle)
-        res.status(200).send({updatedArticle})
-    })
+
+    const dbQueries = [ 
+        updateArticleById(article_id, inc_votes), 
+        selectArticleById(article_id)
+    ]
+    Promise.all(dbQueries)
+        .then((results) => {
+            const updatedArticle = results[0]
+            res.status(200).send({updatedArticle})
+        })
+        .catch(next);
 }
