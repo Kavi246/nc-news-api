@@ -85,13 +85,12 @@ describe('GET/api/articles/:article_id', () => {
 
 describe.only('PATCH /api/articles/:article_id', () => {
     test('status 200: updates the valid article and responds with that article.', () => {
-        const incrementVotes = { inc_votes: 52}
+        const incrementVotes = { inc_votes: 52 }
         return request(app)
         .patch('/api/articles/4')
         .send(incrementVotes)
         .expect(200)
         .then((res) => {
-            console.log(res.body)
             const expected = {
                 article_id: 4,
                 title: 'Student SUES Mitch!',
@@ -103,6 +102,26 @@ describe.only('PATCH /api/articles/:article_id', () => {
               }
             expect(res.body.updatedArticle).toEqual(expected)
 
+        })
+    })
+    test('status 400: responds with a custom error message when the request body does not match our format' , () => {
+        const invalidIncrementVotes = ['inc_votes', 108]
+        return request(app)
+        .patch('/api/articles/7')
+        .send(invalidIncrementVotes)
+        .expect(400)
+        .then((res) => {
+            expect(res.body.msg).toBe('patch request body incorrectly formatted')
+        })
+    })
+    test('status 400: responds with a custom error message when the vote increment value is not a number' , () => {
+        const invalidIncrementVotes = {inc_votes :"hundred"}
+        return request(app)
+        .patch('/api/articles/7')
+        .send(invalidIncrementVotes)
+        .expect(400)
+        .then((res) => {
+            expect(res.body.msg).toBe('value for the vote increment must be a number!')
         })
     })
 })
