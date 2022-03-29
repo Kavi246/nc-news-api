@@ -47,7 +47,7 @@ describe('GET/api/topics', () => {
     })
 })
 
-describe.only('GET/api/articles/:article_id', () => {
+describe('GET/api/articles/:article_id', () => {
     test('should respond with a single matching article when a valid id is requested', () => {
         return request(app)
         .get('/api/articles/1')
@@ -73,12 +73,76 @@ describe.only('GET/api/articles/:article_id', () => {
             expect(res.body.msg).toMatch('Bad request')
         })
     })
-    test.only('status 404: should respond with a article not found message when an id that does not exist is requested', () => {
+    test('status 404: should respond with an article not found message when an id that does not exist is requested', () => {
         return request(app)
         .get('/api/articles/444')
         .expect(404)
         .then((res) => {
             expect(res.body.msg).toEqual('Article not found')
+        })
+    })
+})
+
+describe.only('PATCH /api/articles/:article_id', () => {
+    test('status 200: updates the valid article and responds with that article.', () => {
+        const incrementVotes = { inc_votes: 52 }
+        return request(app)
+        .patch('/api/articles/4')
+        .send(incrementVotes)
+        .expect(200)
+        .then((res) => {
+            const expected = {
+                article_id: 4,
+                title: 'Student SUES Mitch!',
+                topic: 'mitch',
+                author: 'rogersop',
+                body: 'We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages',
+                created_at: '2020-05-06T01:14:00.000Z',
+                votes: 52
+              }
+            expect(res.body.updatedArticle).toEqual(expected)
+
+        })
+    })
+    test('status 400: responds with a custom error message when the request body does not match our format' , () => {
+        const invalidIncrementVotes = ['inc_votes', 108]
+        return request(app)
+        .patch('/api/articles/7')
+        .send(invalidIncrementVotes)
+        .expect(400)
+        .then((res) => {
+            expect(res.body.msg).toBe('patch request body incorrectly formatted')
+        })
+    })
+    test('status 400: responds with a custom error message when the vote increment value is not a number' , () => {
+        const invalidIncrementVotes = {inc_votes :"o' hunnid"}
+        return request(app)
+        .patch('/api/articles/7')
+        .send(invalidIncrementVotes)
+        .expect(400)
+        .then((res) => {
+            expect(res.body.msg).toBe('value for the vote increment must be a number!')
+        })
+    })
+    test('status 404: responds with an article not found message when an id that does not exist is requested' , () => {
+        const incrementVotes = {inc_votes : 27}
+        return request(app)
+        .patch('/api/articles/88')
+        .send(incrementVotes)
+        .expect(404)
+        .then((res) => {
+            expect(res.body.msg).toBe('Article not found')
+        })
+    })
+    test('status 400: should respond with a bad request message when an invalid id is requested' , () => {
+        const incrementVotes = {inc_votes : 77}
+        return request(app)
+        .patch('/api/articles/tasmania')
+        .send(incrementVotes)
+        .expect(400)
+        .then((res) => {
+            console.log(res.body)
+            expect(res.body.msg).toMatch('Bad request');
         })
     })
 })
