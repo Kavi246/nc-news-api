@@ -5,7 +5,11 @@ exports.selectArticleById = async (article_id) => {
     if(article.rows.length === 0) {
         return Promise.reject({status: 404, msg: "Article not found"})
     }
-    return article.rows[0]
+    const chosenArticle = article.rows[0]
+
+    const commentsByArticleId = await db.query('SELECT * FROM comments WHERE article_id = $1;', [article_id]);
+    chosenArticle['comment_count'] = commentsByArticleId.rows.length;
+    return chosenArticle;
 }
 
 exports.updateArticleById = async (article_id, inc_votes) => {
