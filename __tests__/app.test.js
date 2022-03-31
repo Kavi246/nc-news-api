@@ -3,6 +3,7 @@ const request = require('supertest');
 const seed = require('../db/seeds/seed');
 const testData = require('../db/data/test-data/index.js');
 const app = require('../app');
+const res = require('express/lib/response');
 
 beforeEach(() => seed(testData));
 
@@ -83,7 +84,7 @@ describe('GET/api/articles/:article_id', () => {
     })
 })
 
-describe.only('PATCH /api/articles/:article_id', () => {
+describe('PATCH /api/articles/:article_id', () => {
     test('status 200: updates the valid article and responds with that article.', () => {
         const incrementVotes = { inc_votes: 52 }
         return request(app)
@@ -143,6 +144,25 @@ describe.only('PATCH /api/articles/:article_id', () => {
         .then((res) => {
             console.log(res.body)
             expect(res.body.msg).toMatch('Bad request');
+        })
+    })
+})
+
+describe.only('GET/api/users', () => {
+    test('status 200: responds with an array of objects. Each containing a username property', () => {
+        return request(app)
+        .get('/api/users')
+        .expect(200)
+        .then(({ body }) => {
+            expect(Array.isArray(body.users)).toBe(true)
+            expect(body.users.length).toBe(4);
+            body.users.forEach((user) => {
+                expect(user).toEqual(
+                    {
+                        username: expect.any(String)
+                    }
+                )
+            })
         })
     })
 })
