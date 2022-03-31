@@ -48,22 +48,34 @@ describe('GET/api/topics', () => {
     })
 })
 
-describe('GET/api/articles/:article_id', () => {
-    test('should respond with a single matching article when a valid id is requested', () => {
-        return request(app)
-        .get('/api/articles/1')
-        .expect(200)
-        .then((res) => {
-            const expected = {
-                article_id: 1,
-                title: 'Living in the shadow of a great man',
-                topic: 'mitch',
-                author: 'butter_bridge',
-                body: 'I find this existence challenging',
-                created_at: '2020-07-09T20:11:00.000Z',
-                votes: 100
-              }
-            expect(res.body.article).toEqual(expected);
+describe.only('GET/api/articles/:article_id', () => {
+    describe('status 200: ', () => {
+        test('should respond with a single matching article when a valid id is requested', () => {
+            return request(app)
+            .get('/api/articles/1')
+            .expect(200)
+            .then((res) => {
+                const expected = {
+                    article_id: 1,
+                    title: 'Living in the shadow of a great man',
+                    topic: 'mitch',
+                    author: 'butter_bridge',
+                    body: 'I find this existence challenging',
+                    created_at: '2020-07-09T20:11:00.000Z',
+                    votes: 100,
+                    comment_count: 11
+                }
+                expect(res.body.article).toEqual(expected);
+            })
+        })
+        test('the comment count property should be 0 if an article with no comments is chosen', () => {
+            return request(app)
+            .get('/api/articles/4')
+            .expect(200)
+            .then((res) => {
+                const chosenArticle = res.body.article
+                expect(chosenArticle.comment_count).toEqual(0);
+            })
         })
     })
     test('status 400: should respond with a bad request message when an invalid id is requested', () => {
@@ -148,7 +160,7 @@ describe('PATCH /api/articles/:article_id', () => {
     })
 })
 
-describe.only('GET/api/users', () => {
+describe('GET/api/users', () => {
     test('status 200: responds with an array of objects. Each containing a username property', () => {
         return request(app)
         .get('/api/users')
