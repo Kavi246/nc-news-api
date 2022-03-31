@@ -1,3 +1,4 @@
+const app = require('../app');
 const db = require('../db/connection')
 
 exports.selectArticleById = async (article_id) => {
@@ -25,4 +26,15 @@ exports.updateArticleById = async (article_id, inc_votes) => {
         .then((result) => {
             return result.rows[0]
         })
+}
+
+exports.selectAllArticles = async () => {
+    const allArticles = await db.query(`
+        SELECT articles.*, CAST(COUNT(comments.comment_id) AS INT) AS comment_count
+        FROM articles LEFT JOIN comments 
+            ON comments.article_id = articles.article_id 
+        GROUP BY articles.article_id 
+        ORDER BY articles.created_at DESC;
+    `)
+    return allArticles.rows;
 }
