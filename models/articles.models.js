@@ -34,7 +34,7 @@ exports.selectAllArticles = async () => {
         FROM articles LEFT JOIN comments 
             ON comments.article_id = articles.article_id 
         GROUP BY articles.article_id 
-        ORDER BY articles.article_id ASC;
+        ORDER BY articles.created_at DESC;
     `)
     return allArticles.rows;
 }

@@ -179,7 +179,7 @@ describe('GET/api/users', () => {
 })
 
 describe.only('GET /api/articles', () => {
-    test('status 200: responds with all articles, sorted by article_id (ascending)', () => {
+    test('status 200: responds with all articles, sorted by date (descending)', () => {
         return request(app)
         .get('/api/articles')
         .expect(200)
