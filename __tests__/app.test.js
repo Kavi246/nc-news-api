@@ -3,7 +3,6 @@ const request = require('supertest');
 const seed = require('../db/seeds/seed');
 const testData = require('../db/data/test-data/index.js');
 const app = require('../app');
-const res = require('express/lib/response');
 
 beforeEach(() => seed(testData));
 
@@ -48,7 +47,7 @@ describe('GET/api/topics', () => {
     })
 })
 
-describe.only('GET/api/articles/:article_id', () => {
+describe('GET/api/articles/:article_id', () => {
     describe('status 200: ', () => {
         test('should respond with a single matching article when a valid id is requested', () => {
             return request(app)
@@ -177,4 +176,40 @@ describe('GET/api/users', () => {
             })
         })
     })
+})
+
+describe.only('GET /api/articles', () => {
+    test('status 200: responds with all articles, sorted by article_id (ascending)', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((res) => {
+            expect(Array.isArray(res.body.articles)).toBe(true);
+            expect(res.body.articles.length).toBe(12);
+        })
+    })
+    test('status 200: each article should have a comment count property along with all other properties', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((res) => {
+            const articlesArr = res.body.articles;
+            console.log(articlesArr)
+            articlesArr.forEach((article) => {
+                expect(article).toEqual(
+                    {
+                        article_id: expect.any(Number),
+                        title: expect.any(String),
+                        topic: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        comment_count: expect.any(Number)
+                    }
+                )
+            })
+        })
+    })
+
 })
