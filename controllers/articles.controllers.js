@@ -1,4 +1,4 @@
-const { selectArticleById, updateArticleById, selectAllArticles } = require('../models/articles.models');
+const { selectArticleById, updateArticleById, selectAllArticles, selectCommentsByArticle } = require('../models/articles.models');
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params;
@@ -27,13 +27,29 @@ exports.patchArticleById = (req, res, next) => {
     Promise.all(dbQueries)
         .then((results) => {
             const updatedArticle = results[0]
-            res.status(200).send({updatedArticle})
+            res.status(200).send( { updatedArticle } )
         })
         .catch(next);
 }
 
 exports.getAllArticles = (req, res, next) => {
     selectAllArticles().then((articles) => {
-        res.send( {articles });
+        res.send( {articles } );
     })
+    .catch(next);
+}
+
+exports.getCommentsForArticle = (req, res, next) => {
+    const { article_id } = req.params;
+    selectCommentsByArticle(article_id).then((result) => {
+        if(Array.isArray(result)) {
+            const comments = result;
+            res.send( { comments } );
+        }
+        else {
+            console.log(result.msg)
+            res.status(result.status).send({msg: result.msg})
+        }
+    })
+    .catch(next);
 }

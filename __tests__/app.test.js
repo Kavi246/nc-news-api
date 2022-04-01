@@ -3,6 +3,7 @@ const request = require('supertest');
 const seed = require('../db/seeds/seed');
 const testData = require('../db/data/test-data/index.js');
 const app = require('../app');
+const { get } = require('express/lib/response');
 
 beforeEach(() => seed(testData));
 
@@ -153,7 +154,6 @@ describe('PATCH /api/articles/:article_id', () => {
         .send(incrementVotes)
         .expect(400)
         .then((res) => {
-            console.log(res.body)
             expect(res.body.msg).toMatch('Bad request');
         })
     })
@@ -178,7 +178,7 @@ describe('GET/api/users', () => {
     })
 })
 
-describe.only('GET /api/articles', () => {
+describe('GET /api/articles', () => {
     test('status 200: responds with all articles, sorted by date (descending)', () => {
         return request(app)
         .get('/api/articles')
@@ -194,7 +194,6 @@ describe.only('GET /api/articles', () => {
         .expect(200)
         .then((res) => {
             const articlesArr = res.body.articles;
-            console.log(articlesArr)
             articlesArr.forEach((article) => {
                 expect(article).toEqual(
                     {
@@ -212,4 +211,53 @@ describe.only('GET /api/articles', () => {
         })
     })
 
+})
+
+describe.only('GET /api/articles/:article_id/comments', () => {
+    test('status 200: responds with an array of comments for the given article', () => {
+        return request(app)
+        .get('/api/articles/1/comments')
+        .expect(200)
+        .then((res) => {
+            const commentsArr = res.body.comments;
+            expect(commentsArr.length).toEqual(11);
+            commentsArr.forEach((comment) => {
+                expect(comment).toEqual(
+                    {
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: expect.any(Number)
+                    }
+                )
+            })
+        })
+    })
+    test('status 400: Bad request due to invalid article_id', () => {
+        return request(app)
+        .get('/api/articles/dbugle/comments')
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toMatch('Bad request:')
+        })
+    })
+    test('status 404: responds with a "not found" message when article_id doesn\'t exist', () => {
+        return request(app)
+        .get('/api/articles/65/comments')
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Article not found')
+        })
+    })
+    test('status 200: responds with a no comments message when article_id exists but has no comments', () => {
+        return request(app)
+        .get('/api/articles/2/comments')
+        .expect(200)
+        .then(({ body }) => {
+            console.log(body)
+            expect(body.msg).toBe('This article has no comments')
+        })
+    })
 })

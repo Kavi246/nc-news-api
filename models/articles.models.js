@@ -1,5 +1,6 @@
 const app = require('../app');
-const db = require('../db/connection')
+const db = require('../db/connection');
+const comments = require('../db/data/test-data/comments');
 
 exports.selectArticleById = async (article_id) => {
     const article = await db.query(`
@@ -37,4 +38,23 @@ exports.selectAllArticles = async () => {
         ORDER BY articles.created_at DESC;
     `)
     return allArticles.rows;
+}
+
+exports.selectCommentsByArticle = async (article_id) => {
+    const commentsForArticle = await db.query(`
+        SELECT * FROM comments 
+        WHERE article_id = $1;
+    `, [article_id])
+
+    if(commentsForArticle.rows.length === 0) {
+        const articleExists = await db.query(`
+            SELECT * FROM articles 
+            WHERE article_id = $1;
+        `, [article_id]);
+        if((articleExists).rows.length) {
+            return Promise.resolve({status: 200, msg:'This article has no comments'})
+        }
+        return Promise.reject({status: 404, msg:"Article not found"})
+    }
+    return commentsForArticle.rows;
 }
