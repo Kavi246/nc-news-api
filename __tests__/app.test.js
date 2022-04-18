@@ -279,4 +279,14 @@ describe.only('POST /api/articles/:article_id/comments', () => {
                 })
         })
     })
+    test.only('status 404: responds with an error message when the author does not exist in the user\'s table', () => {
+        return request(app)
+        .post('/api/articles/3/comments')
+        .send({ username: "KaviP", body:"testing testing 123" })
+        .expect(404)
+        .then(({ body }) => {
+            console.log(body);
+            expect(body.msg).toEqual("User does not exist")
+        })
+    })
 })
