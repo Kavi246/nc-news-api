@@ -30,14 +30,44 @@ exports.updateArticleById = async (article_id, inc_votes) => {
         })
 }
 
-exports.selectAllArticles = async () => {
-    const allArticles = await db.query(`
-        SELECT articles.*, CAST(COUNT(comments.comment_id) AS INT) AS comment_count
-        FROM articles LEFT JOIN comments 
-            ON comments.article_id = articles.article_id 
-        GROUP BY articles.article_id 
-        ORDER BY articles.created_at DESC;
-    `)
+exports.selectAllArticles = async (sort_by = 'created_at', order='DESC', topic) => {
+    const validColumns = ['article_id', 'title', 'topic', 'author', 'body', 'created_at', 'votes', 'comment_count'];
+    if(!validColumns.includes(sort_by)) {
+        return Promise.reject({status: 400, msg: 'invalid sort_by, column doesn\'t exist'});
+    }
+    const currentTopics = await db.query('SELECT * FROM topics;')
+    const validTopics = currentTopics.rows.map(topic => topic.slug);
+    
+
+    
+    let queryStr = `
+    SELECT articles.*, CAST(COUNT(comments.comment_id) AS INT) AS comment_count
+    FROM articles LEFT JOIN comments 
+        ON comments.article_id = articles.article_id`;
+    const queryValues = [];
+    
+    if (topic) {
+        if(!validTopics.includes(topic)) {
+            return Promise.reject({status: 404, msg: "topic you are trying to filter by does not exist"})
+        }
+        queryStr += ` WHERE topic = $1`;
+        queryValues.push(topic);
+    }
+
+    queryStr += ` GROUP BY articles.article_id`
+    
+    queryStr += ` ORDER BY ${sort_by}`;
+    
+    if(order){
+        if (/^desc$/i.test(order) || /^asc$/i.test(order)) {
+            queryStr += ` ${order};`;
+        }
+        else {
+            return Promise.reject({status: 400, msg: `you cannot order by: ${order}`})
+        }
+    }
+
+    const allArticles = await db.query(queryStr, queryValues)
     return allArticles.rows;
 }
 

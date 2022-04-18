@@ -178,7 +178,7 @@ describe('GET/api/users', () => {
     })
 })
 
-describe('GET /api/articles', () => {
+describe.only('GET /api/articles', () => {
     test('status 200: responds with all articles, sorted by date (descending)', () => {
         return request(app)
         .get('/api/articles')
@@ -186,6 +186,7 @@ describe('GET /api/articles', () => {
         .then((res) => {
             expect(Array.isArray(res.body.articles)).toBe(true);
             expect(res.body.articles.length).toBe(12);
+            expect(res.body.articles).toBeSortedBy('created_at',{ descending: true });
         })
     })
     test('status 200: each article should have a comment count property along with all other properties', () => {
@@ -210,7 +211,59 @@ describe('GET /api/articles', () => {
             })
         })
     })
-
+    describe("Queries", () => {
+        test("status 200: sorts the articles by any valid column (defaults to date)", () => {
+            return request(app)
+            .get('/api/articles?sort_by=article_id')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy('article_id', { descending: true })
+            })
+        })
+        test("status 200: sorts the articles by any valid column and allows order to be chosen", () => {
+            return request(app)
+            .get('/api/articles?sort_by=article_id&order=ASC')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy('article_id', { descending: false })
+            })
+        })
+        test("status 200: can filter articles by topic", () => {
+            return request(app)
+            .get('/api/articles?topic=mitch')
+            .expect(200)
+            .then(({ body }) => {
+                body.articles.forEach((article) => {
+                    expect(article).toEqual({
+                        article_id: expect.any(Number),
+                        title: expect.any(String),
+                        topic: "mitch",
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        comment_count: expect.any(Number)
+                    })
+                })
+            })
+        })
+        test("status 404: returns an error message if the topic is not found", () => {
+            return request(app)
+            .get('/api/articles?topic=beyondComp')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("topic you are trying to filter by does not exist")
+            })
+        })
+        test("status 400: returns an error message if the topic is not found", () => {
+            return request(app)
+            .get('/api/articles?sort_by=author&order=random')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toMatch("you cannot order by:")
+            })
+        })
+    })
 })
 
 describe('GET /api/articles/:article_id/comments', () => {
@@ -261,7 +314,7 @@ describe('GET /api/articles/:article_id/comments', () => {
         })
     })
 })
-describe.only('POST /api/articles/:article_id/comments', () => {
+describe('POST /api/articles/:article_id/comments', () => {
     test('status 201: responds with the newly posted comment when the author exists in the user\'s table', () => {
         return request(app)
         .post('/api/articles/3/comments')
@@ -324,3 +377,5 @@ describe.only('POST /api/articles/:article_id/comments', () => {
         })
     })
 })
+
+jest.setTimeout(60000);

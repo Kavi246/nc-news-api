@@ -33,7 +33,8 @@ exports.patchArticleById = (req, res, next) => {
 }
 
 exports.getAllArticles = (req, res, next) => {
-    selectAllArticles().then((articles) => {
+    const { sort_by, order, topic } = req.query;
+    selectAllArticles(sort_by, order, topic).then((articles) => {
         res.send( {articles } );
     })
     .catch(next);
