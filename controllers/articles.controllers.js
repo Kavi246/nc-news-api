@@ -60,8 +60,11 @@ exports.postCommentsForArticle = (req, res, next) => {
     if((!req.body.hasOwnProperty('username'))||(!req.body.hasOwnProperty('body'))) {
         return next({status: 400, msg: 'The comment to be posted was incorrectly formatted'})
     }
-    else if( typeof req.body.username !== 'string' || typeof req.body.body !== 'string') {
-        return next({status: 400, msg: 'The comment\'s author and body must be a string'})
+    else if(typeof req.body.username !== 'string') {
+        return next({status: 400, msg: 'The username must be a string'})
+    }
+    else if(typeof req.body.body !== 'string') {
+        return next({status: 400, msg: 'The comment body must be a string'})
     }
 
     const newComment = req.body;
