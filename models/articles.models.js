@@ -1,3 +1,4 @@
+const format = require("pg-format");
 const app = require('../app');
 const db = require('../db/connection');
 const comments = require('../db/data/test-data/comments');
@@ -57,4 +58,14 @@ exports.selectCommentsByArticle = async (article_id) => {
         return Promise.reject({status: 404, msg:"Article not found"})
     }
     return commentsForArticle.rows;
+}
+
+exports.insertCommentForArticle = (article_id, newComment) => {
+    const insertQueryStr = format("INSERT INTO comments (body, author, article_id, votes, created_at) VALUES (%L) RETURNING *;"
+    , [newComment.body, newComment.username, article_id, 0, new Date(Date.now())]);
+    return db.query(insertQueryStr)
+    .then(results => {
+        return results.rows[0];
+    })
+
 }
