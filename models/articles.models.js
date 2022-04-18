@@ -67,8 +67,9 @@ exports.insertCommentForArticle = (article_id, newComment) => {
     .then(results => {
         return results.rows[0];
     })
-    .catch(() => {
-        return Promise.reject({status: 404, msg:"User does not exist"});
+    .catch((err) => {
+        const missingDetail = err.detail.includes("article") ? "Article" : "User"
+        return Promise.reject({status: 404, msg:`${missingDetail} does not exist`});
     })
 
 }
