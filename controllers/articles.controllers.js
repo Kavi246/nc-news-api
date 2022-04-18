@@ -1,4 +1,4 @@
-const { selectArticleById, updateArticleById, selectAllArticles, selectCommentsByArticle } = require('../models/articles.models');
+const { selectArticleById, updateArticleById, selectAllArticles, selectCommentsByArticle, insertCommentForArticle} = require('../models/articles.models');
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params;
@@ -52,4 +52,26 @@ exports.getCommentsForArticle = (req, res, next) => {
         }
     })
     .catch(next);
+}
+
+exports.postCommentsForArticle = (req, res, next) => {
+    const { article_id } = req.params;
+
+    if((!req.body.hasOwnProperty('username'))||(!req.body.hasOwnProperty('body'))) {
+        return next({status: 400, msg: 'The comment to be posted was incorrectly formatted'})
+    }
+    else if(typeof req.body.username !== 'string') {
+        return next({status: 400, msg: 'The username must be a string'})
+    }
+    else if(typeof req.body.body !== 'string') {
+        return next({status: 400, msg: 'The comment body must be a string'})
+    }
+
+    const newComment = req.body;
+
+    insertCommentForArticle(article_id, newComment)
+    .then((postedComment) => {
+        res.status(201).send({ postedComment })
+    })
+    .catch(next)
 }

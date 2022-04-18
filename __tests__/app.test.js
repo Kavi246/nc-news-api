@@ -213,7 +213,7 @@ describe('GET /api/articles', () => {
 
 })
 
-describe.only('GET /api/articles/:article_id/comments', () => {
+describe('GET /api/articles/:article_id/comments', () => {
     test('status 200: responds with an array of comments for the given article', () => {
         return request(app)
         .get('/api/articles/1/comments')
@@ -258,6 +258,69 @@ describe.only('GET /api/articles/:article_id/comments', () => {
         .then(({ body }) => {
             console.log(body)
             expect(body.msg).toBe('This article has no comments')
+        })
+    })
+})
+describe.only('POST /api/articles/:article_id/comments', () => {
+    test('status 201: responds with the newly posted comment when the author exists in the user\'s table', () => {
+        return request(app)
+        .post('/api/articles/3/comments')
+        .send({ username: "butter_bridge", body:"testing testing 123" })
+        .expect(201)
+        .then(({ body }) => {
+            expect(body.postedComment).toEqual({
+                   "article_id": 3,
+                   "author": "butter_bridge",
+                   "body": "testing testing 123",
+                   "comment_id": 19,
+                   "created_at": expect.any(String),
+                   "votes": 0,
+                })
+        })
+    })
+    test('status 404: responds with an error message when the author does not exist in the user\'s table', () => {
+        return request(app)
+        .post('/api/articles/3/comments')
+        .send({ username: "KaviP", body:"testing testing 123" })
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toEqual("User does not exist")
+        })
+    })
+    test('status 404: responds with an error message when the article does not exist', () => {
+        return request(app)
+        .post('/api/articles/66/comments')
+        .send({ username: "butter_bridge", body: "testtesttest" })
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toEqual("Article does not exist")
+        })
+    })
+    test('status 400: responds with an error message when the sent object does not have the correct keys', () => {
+        return request(app)
+        .post('/api/articles/3/comments')
+        .send({ username: "test", comment_body:"shouldFail" })
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toEqual("The comment to be posted was incorrectly formatted")
+        })
+    })
+    test('status 400: responds with an error message when the sent data is of the wrong type', () => {
+        return request(app)
+        .post('/api/articles/3/comments')
+        .send({ username: "test", body: 180 })
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toEqual("The comment body must be a string")
+        })
+    })
+    test('status 400: responds with an error message when the sent data is of the wrong type', () => {
+        return request(app)
+        .post('/api/articles/3/comments')
+        .send({ username: true, body: "test" })
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toEqual("The username must be a string")
         })
     })
 })
