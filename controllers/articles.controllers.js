@@ -48,7 +48,6 @@ exports.getCommentsForArticle = (req, res, next) => {
             res.send( { comments } );
         }
         else {
-            console.log(result.msg)
             res.status(result.status).send({msg: result.msg})
         }
     })

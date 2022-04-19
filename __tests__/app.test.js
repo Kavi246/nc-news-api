@@ -11,7 +11,7 @@ afterAll(() => {
   if (db.end) db.end();
 });
 
-describe('general errors when requesting', () => {
+describe.only('general errors when requesting', () => {
     test('correct 404 response when a path is not found', () => {
         const invalidPath = "/app/tropics"
         return request(app)
@@ -178,7 +178,7 @@ describe('GET/api/users', () => {
     })
 })
 
-describe.only('GET /api/articles', () => {
+describe('GET /api/articles', () => {
     test('status 200: responds with all articles, sorted by date (descending)', () => {
         return request(app)
         .get('/api/articles')
@@ -309,7 +309,6 @@ describe('GET /api/articles/:article_id/comments', () => {
         .get('/api/articles/2/comments')
         .expect(200)
         .then(({ body }) => {
-            console.log(body)
             expect(body.msg).toBe('This article has no comments')
         })
     })
@@ -378,4 +377,4 @@ describe('POST /api/articles/:article_id/comments', () => {
     })
 })
 
-jest.setTimeout(60000);
+jest.setTimeout(60000); 
