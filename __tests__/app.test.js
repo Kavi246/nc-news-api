@@ -11,7 +11,7 @@ afterAll(() => {
   if (db.end) db.end();
 });
 
-describe.only('general errors when requesting', () => {
+describe('general errors when requesting', () => {
     test('correct 404 response when a path is not found', () => {
         const invalidPath = "/app/tropics"
         return request(app)
@@ -373,6 +373,16 @@ describe('POST /api/articles/:article_id/comments', () => {
         .expect(400)
         .then(({ body }) => {
             expect(body.msg).toEqual("The username must be a string")
+        })
+    })
+})
+describe.only("GET /api", () => {
+    test("returns a description of the available endpoints of the API (in JSON form)", () => {
+        return request(app)
+        .get('/api')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.endpoints['GET /api'].description).toBe('serves up a json representation of all the available endpoints of the api')
         })
     })
 })
