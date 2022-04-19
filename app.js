@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const { getAllTopics } = require('./controllers/topics.controllers')
 const { getArticleById, patchArticleById, getAllArticles, getCommentsForArticle, postCommentsForArticle} = require('./controllers/articles.controllers')
@@ -8,6 +9,7 @@ const res = require('express/lib/response');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.get('/api/', (req, res) => {
     res.status(200).send({endpoints});
