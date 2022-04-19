@@ -313,7 +313,7 @@ describe('GET /api/articles/:article_id/comments', () => {
         })
     })
 })
-describe('POST /api/articles/:article_id/comments', () => {
+describe.only('POST /api/articles/:article_id/comments', () => {
     test('status 201: responds with the newly posted comment when the author exists in the user\'s table', () => {
         return request(app)
         .post('/api/articles/3/comments')
