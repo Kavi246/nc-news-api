@@ -4,8 +4,11 @@ const cors = require('cors');
 const { getAllTopics } = require('./controllers/topics.controllers')
 const { getArticleById, patchArticleById, getAllArticles, getCommentsForArticle, postCommentsForArticle} = require('./controllers/articles.controllers')
 const { getAllUsers } = require('./controllers/users.controllers')
+const { removeComment } = require('./controllers/comments.controllers')
 const endpoints = require('./endpoints.json');
+
 const res = require('express/lib/response');
+const { application } = require('express');
 
 const app = express();
 app.use(express.json());
@@ -22,6 +25,8 @@ app.patch('/api/articles/:article_id', patchArticleById)
 app.get('/api/articles', getAllArticles)
 app.get('/api/articles/:article_id/comments', getCommentsForArticle)
 app.post('/api/articles/:article_id/comments', postCommentsForArticle)
+
+app.delete('/api/comments/:comment_id', removeComment)
 
 app.get('/api/users', getAllUsers)
 

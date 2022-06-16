@@ -376,7 +376,14 @@ describe('POST /api/articles/:article_id/comments', () => {
         })
     })
 })
-describe.only("GET /api", () => {
+describe("DELETE /api/comments/:comment_id", () => {
+    test("status 204: deletes a comment that exists by id", () => {
+        return request(app)
+        .delete('/api/comments/1')
+        .expect(204)
+    })
+})
+describe("GET /api", () => {
     test("returns a description of the available endpoints of the API (in JSON form)", () => {
         return request(app)
         .get('/api')
