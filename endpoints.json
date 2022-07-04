@@ -10,7 +10,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
@@ -20,8 +20,28 @@
           "author": "weegembump",
           "body": "Text from the article..",
           "created_at": 1527695953341
+        },
+        {
+          "title": "Late game substitutions are increasing",
+          "topic": "football",
+          "author": "gordonsonton",
+          "body": "Text from the article..",
+          "created_at": 1427691083341
         }
       ]
+    }
+  },
+  "GET /api/articles/articles_id": {
+    "description": "serves a single article on matching 'article_id' ",
+    "exampleResponse": {
+      "article":
+        {
+          "title": "Seafood substitutions are increasing",
+          "topic": "cooking",
+          "author": "weegembump",
+          "body": "Text from the article..",
+          "created_at": 1527695953341
+        }
     }
   }
 }
